@@ -20,6 +20,11 @@ jobs:
           base64 -d signing/debug.keystore.b64 > ~/.android/debug.keystore
       - run: npm install
       - run: npx cap add android
+      - name: Add native music-library plugin and permission
+        run: |
+          cp native/VeloMedia.java android/app/src/main/java/com/velo/player/VeloMedia.java
+          cp native/MainActivity.java android/app/src/main/java/com/velo/player/MainActivity.java
+          sed -i 's#</manifest>#    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />\n</manifest>#' android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
       - run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4

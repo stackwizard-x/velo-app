@@ -58,7 +58,7 @@ nav button.on{opacity:1;color:var(--c6)}nav svg{width:26px;height:26px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 <div id="app">
-<header><h1>Velo</h1><label class="ib" for="fAudio" id="addBtn" aria-label="Add songs" style="cursor:pointer;font-size:24px;font-weight:700">+</label></header>
+<header><h1>Velo</h1><button class="ib" id="addBtn" aria-label="Scan for songs" style="font-size:22px;font-weight:700">↻</button></header>
 <main id="main"></main>
 <div id="mini"><div class="art" id="mArt"></div><div class="meta"><b id="mT"></b><small id="mS"></small></div>
 <div class="ctl"><button id="prev">⏮</button><button id="pp">▶</button><button id="next">⏭</button></div><div class="prog"><div id="pg"></div></div></div>
@@ -101,11 +101,33 @@ async function importFiles(files){
   toast(n?n+' songs added':'No new songs found');render();
 }
 $('#fAudio').onchange=e=>{importFiles([...e.target.files]);e.target.value=''};
+
+/* native scan: Android permission popup, then Velo finds every song on the phone */
+async function scanLibrary(auto){
+  const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.VeloMedia;
+  if(!P){if(!auto)$('#fAudio').click();return}
+  try{
+    const r=await P.ask();
+    if(!r.granted){if(!auto)toast('Allow "Music and audio" for Velo: Settings > Apps > Velo > Permissions');return}
+    if(!auto)toast('Scanning…');
+    const L=(await P.scan()).songs||[],have=new Map(songs.map(x=>[x.id,x])),ids=new Set(L.map(x=>String(x.id)));
+    for(const x of L){const id=String(x.id),o=have.get(id);
+      if(o){if(o.path!==x.path){o.path=x.path;await put('songs',o)}continue}
+      const n={id,name:x.title||'Song',path:x.path,dur:x.dur,type:x.dur&&x.dur<=90?'short':'long',img:null};await put('songs',n);songs.push(n)}
+    for(const x of songs.slice())if(x.path&&!ids.has(x.id)){songs=songs.filter(y=>y!=x);await rm('songs',x.id)}
+    S.reelOrder=S.reelOrder.filter(id=>song(id));
+    songs.filter(x=>x.type=='short'&&!S.reelOrder.includes(x.id)).forEach(x=>S.reelOrder.push(x.id));
+    await put('meta',S.reelOrder,'reelOrder');
+    if(!auto)toast(songs.length+' songs found');
+    if(!document.querySelector('.reels,.sheet-bg'))render();
+  }catch(e){if(!auto)toast('Scan failed: '+(e.message||e))}
+}
+document.addEventListener('click',e=>{if(e.target.closest('#allow,#addBtn'))scanLibrary(false)});
 /* ---------- playback ---------- */
 function playQ(ids,i,isReel){reelMode=!!isReel;queue=ids;qi=i;load()}
 function load(){
   const s=song(queue[qi]);if(!s)return;
-  au.src=url(s.id,'blob');au.loop=reelMode;au.play().catch(()=>{});
+  au.src=s.path?Capacitor.convertFileSrc('file://'+s.path.split('/').map(encodeURIComponent).join('/')):url(s.id,'blob');au.loop=reelMode;au.play().catch(()=>{});
   $('#mT').textContent=s.name;$('#mS').textContent=s.type=='short'?'Short':'Long';
   const a=$('#mArt');a.style.backgroundImage=s.img?`url(${url(s.id,'img')})`:'';a.textContent=s.img?'':s.name[0];
   $('#mini').style.display=reelMode?'none':'flex';syncList();
@@ -125,7 +147,7 @@ const rowH=s=>`<div class="row" data-id="${esc(s.id)}"><div class="art" style="$
 function bindRows(list,ids,isPl){
   list.querySelectorAll('.row').forEach(r=>{r.onclick=e=>{if(e.target.closest('.dots'))return;const i=ids.indexOf(r.dataset.id);playQ(ids,i)};
     r.querySelector('.dots').onclick=()=>menu(r.dataset.id,isPl)});syncList()}
-const emptyH=`<div class="empty">No songs yet.<br>Allow your music once and Velo keeps them.<br><label class="pill" for="fAudio" id="allow">Allow music access</label></div>`;
+const emptyH=`<div class="empty">No songs yet.<br>Allow your music once and Velo keeps them.<br><button class="pill" id="allow">Allow music access</button></div>`;
 function render(){
   nav();const m=$('#main');document.querySelector('.reels')?.remove();document.querySelector('.rtop')?.remove();
   if(S.tab=='home')home(m);else if(S.tab=='reels')reels(m);else if(S.pl)plView(m);else plList(m)}
@@ -184,5 +206,5 @@ function addTo(s){
 /* ---------- boot ---------- */
 (async()=>{await open();songs=await all('songs');pls=await all('pl');S.reelOrder=(await getm('reelOrder'))||[];
   songs.filter(s=>s.type=='short'&&!S.reelOrder.includes(s.id)).forEach(s=>S.reelOrder.push(s.id));
-  render()})();
+  render();scanLibrary(true)})();
 </script></body></html>
