@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f140f"><title>Velo</title>
+<style>
+:root{color-scheme:dark;--c1:#0f140f;--c2:#1a231a;--c3:#2b3a2b;--c4:#98A77C;--c5:#34452f;--c6:#98A77C;--ink:#E7F5DC}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--c1);color:var(--ink);overflow:hidden}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;position:relative}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+header h1{font-size:30px;font-weight:800;letter-spacing:-1.5px;font-style:italic}
+.ib{width:40px;height:40px;border-radius:20px;background:var(--c2);display:grid;place-items:center;font-size:18px}
+main{flex:1;overflow-y:auto;padding:0 16px 150px}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:8px 0 14px}
+.st{flex:none;width:68px;text-align:center;font-size:12px}
+.st i{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;border:3px solid var(--c6);background:var(--c3);font-style:normal;font-weight:700;font-size:22px;margin-bottom:4px}
+.st.short i{background:var(--c5);color:var(--c1)}
+.st span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{display:flex;align-items:center;gap:12px;padding:8px 0;transition:transform .12s}
+.art{flex:none;width:52px;height:52px;border-radius:12px;background:var(--c3);display:grid;place-items:center;font-weight:800;font-size:20px;background-size:cover;background-position:center}
+.row.on .art{background-color:var(--c6);color:var(--c1)}
+.meta{flex:1;min-width:0}.meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.meta small{color:var(--c6)}
+.dots{width:36px;height:36px;border-radius:18px;font-size:20px;font-weight:800}
+.bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:6px 0 10px}
+.bar h2{font-size:22px;letter-spacing:-.5px}
+.pill{background:var(--c6);color:var(--c1);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px}
+.pill.soft{background:var(--c2);color:var(--ink)}
+.seg{display:flex;background:var(--c2);border-radius:999px;padding:4px;margin:6px 0 14px}
+.seg button{flex:1;padding:9px;border-radius:999px;font-weight:700;font-size:14px}
+.seg button.on{background:var(--c6);color:var(--c1)}
+.plc{display:flex;gap:12px;align-items:center;background:var(--c2);border-radius:18px;padding:12px;margin-bottom:10px}
+.empty{background:var(--c2);border-radius:18px;padding:22px;text-align:center;line-height:1.5}
+.empty .pill{display:inline-block;margin-top:12px}
+nav{position:absolute;left:0;right:0;bottom:0;display:flex;background:var(--c1);border-top:2px solid var(--c2);padding:6px 0 max(8px,env(safe-area-inset-bottom))}
+nav button{flex:1;display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:700;padding:6px;opacity:.55}
+nav button.on{opacity:1;color:var(--c6)}nav svg{width:26px;height:26px}
+#mini{position:absolute;left:10px;right:10px;bottom:70px;background:var(--c6);color:var(--c1);border-radius:18px;padding:8px 10px;display:none;align-items:center;gap:10px}
+#mini .meta small{color:var(--c5)}#mini .ctl button{width:38px;height:38px;border-radius:19px;font-size:18px}
+#mini .prog{position:absolute;left:14px;right:14px;bottom:2px;height:3px;background:var(--c5);border-radius:2px}
+#mini .prog div{height:100%;width:0;background:var(--c1);border-radius:2px}
+.reels{position:absolute;inset:0;bottom:62px;overflow-y:scroll;scroll-snap-type:y mandatory;background:var(--c5);z-index:5}
+.reel{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;background:var(--c5) center/cover;display:flex;align-items:flex-end}
+.cap{margin:0 12px 22px;background:rgba(15,20,15,.88);color:#E7F5DC;padding:12px 14px;border-radius:16px;flex:1}
+.cap b{display:block;font-size:18px}.cap small{color:#B6C99B}
+.reel .big{position:absolute;inset:0;display:grid;place-items:center;font-size:90px;font-weight:800;color:var(--c3);opacity:.9;pointer-events:none}
+.rtop{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;max-width:520px;margin:0 auto}
+.rtop h2{background:var(--c1);padding:6px 14px;border-radius:999px;font-size:18px}
+.rdots{position:absolute;right:14px;bottom:30px;z-index:2;background:var(--c1);width:42px;height:42px;border-radius:21px;font-size:20px;font-weight:800}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--c1);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:75%;overflow-y:auto}
+.sheet h3{margin-bottom:8px}
+.sheet button.opt{display:block;width:100%;text-align:left;padding:14px;border-radius:14px;font-weight:600;background:var(--c2);margin-bottom:8px}
+.sheet input{width:100%;padding:14px;border-radius:14px;border:2px solid var(--c3);background:var(--c2);color:var(--ink);font:inherit;margin-bottom:10px}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--c1);padding:10px 16px;border-radius:999px;font-size:14px;z-index:30;display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div id="app">
+<header><h1>Velo</h1><label class="ib" for="fAudio" id="addBtn" aria-label="Add songs" style="cursor:pointer;font-size:24px;font-weight:700">+</label></header>
+<main id="main"></main>
+<div id="mini"><div class="art" id="mArt"></div><div class="meta"><b id="mT"></b><small id="mS"></small></div>
+<div class="ctl"><button id="prev">⏮</button><button id="pp">▶</button><button id="next">⏭</button></div><div class="prog"><div id="pg"></div></div></div>
+<nav id="nav"></nav>
+</div>
+<div id="toast"></div>
+<input type="file" id="fAudio" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac" multiple style="position:fixed;left:-9999px;opacity:0">
+<input type="file" id="fImg" accept="image/*" hidden>
+<audio id="au"></audio>
+<script>
+const $=s=>document.querySelector(s),au=$('#au');
+let db,songs=[],pls=[],S={tab:'home',kind:'long',pl:null,reelOrder:[]},queue=[],qi=-1,reelMode=false,urls={};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- storage (IndexedDB) ---------- */
+const open=()=>new Promise(r=>{const q=indexedDB.open('velo',1);q.onupgradeneeded=()=>['songs','pl','meta'].forEach(n=>q.result.createObjectStore(n,n=='meta'?undefined:{keyPath:'id'}));q.onsuccess=()=>{db=q.result;r()}});
+const st=(s,m)=>db.transaction(s,m||'readonly').objectStore(s);
+const all=s=>new Promise(r=>{const q=st(s).getAll();q.onsuccess=()=>r(q.result)});
+const put=(s,v,k)=>new Promise(r=>{const q=st(s,'readwrite').put(v,k);q.onsuccess=()=>r()});
+const rm=(s,k)=>new Promise(r=>{const q=st(s,'readwrite').delete(k);q.onsuccess=()=>r()});
+const getm=k=>new Promise(r=>{const q=st('meta').get(k);q.onsuccess=()=>r(q.result)});
+const url=(id,f)=>{const k=id+f;if(!urls[k]){const s=songs.find(x=>x.id==id);if(!s||!s[f])return'';urls[k]=URL.createObjectURL(s[f])}return urls[k]};
+const song=id=>songs.find(s=>s.id==id);
+const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)};
+const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'';
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+/* ---------- importing songs (one-time permission) ---------- */
+const dur=f=>new Promise(r=>{const a=new Audio(),u=URL.createObjectURL(f);a.preload='metadata';a.onloadedmetadata=()=>{r(a.duration);URL.revokeObjectURL(u)};a.onerror=()=>{r(0);URL.revokeObjectURL(u)};a.src=u});
+async function importFiles(files){
+  let n=0;toast('Adding songs…');
+  for(const f of files){
+    if(!(f.type||'').startsWith('audio')&&!/\.(mp3|m4a|aac|wav|ogg|opus|flac)$/i.test(f.name))continue;
+    const id=f.name+'|'+f.size;if(song(id))continue;
+    const d=await dur(f);
+    const s={id,name:f.name.replace(/\.[^.]+$/,''),blob:f,dur:d,type:d&&d<=90?'short':'long',img:null};
+    await put('songs',s);songs.push(s);n++;
+  }
+  S.reelOrder=S.reelOrder.filter(id=>song(id));
+  songs.filter(s=>s.type=='short'&&!S.reelOrder.includes(s.id)).forEach(s=>S.reelOrder.push(s.id));
+  await put('meta',S.reelOrder,'reelOrder');
+  toast(n?n+' songs added':'No new songs found');render();
+}
+$('#fAudio').onchange=e=>{importFiles([...e.target.files]);e.target.value=''};
+/* ---------- playback ---------- */
+function playQ(ids,i,isReel){reelMode=!!isReel;queue=ids;qi=i;load()}
+function load(){
+  const s=song(queue[qi]);if(!s)return;
+  au.src=url(s.id,'blob');au.loop=reelMode;au.play().catch(()=>{});
+  $('#mT').textContent=s.name;$('#mS').textContent=s.type=='short'?'Short':'Long';
+  const a=$('#mArt');a.style.backgroundImage=s.img?`url(${url(s.id,'img')})`:'';a.textContent=s.img?'':s.name[0];
+  $('#mini').style.display=reelMode?'none':'flex';syncList();
+}
+const step=d=>{if(!queue.length)return;qi=(qi+d+queue.length)%queue.length;load()};
+$('#next').onclick=()=>step(1);$('#prev').onclick=()=>au.currentTime>3?au.currentTime=0:step(-1);
+$('#pp').onclick=()=>au.paused?au.play():au.pause();
+au.onended=()=>{if(!reelMode)step(1)};
+au.onplay=au.onpause=()=>$('#pp').textContent=au.paused?'▶':'⏸';
+au.ontimeupdate=()=>$('#pg').style.width=(au.currentTime/au.duration*100||0)+'%';
+function syncList(){document.querySelectorAll('.row').forEach(r=>r.classList.toggle('on',r.dataset.id==queue[qi]))}
+/* ---------- views ---------- */
+const ico={home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="currentColor"/>',reels:'<rect x="5" y="3" width="14" height="18" rx="4" fill="currentColor"/><path d="M10 9l5 3-5 3z" fill="#0f140f"/>',pl:'<path d="M4 6h12v2H4zm0 5h12v2H4zm0 5h8v2H4zM18 10v6.5a2.5 2.5 0 11-2-2.4V10z" fill="currentColor"/>'};
+function nav(){$('#nav').innerHTML=[['home','Home'],['reels','Reels'],['pl','Playlists']].map(([k,l])=>`<button class="${S.tab==k?'on':''}" data-t="${k}"><svg viewBox="0 0 24 24">${ico[k]}</svg>${l}</button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;S.pl=null;if(S.tab!='reels'&&reelMode){au.pause();reelMode=false}render()})}
+const rowH=s=>`<div class="row" data-id="${esc(s.id)}"><div class="art" style="${s.img?`background-image:url(${url(s.id,'img')})`:''}">${s.img?'':esc(s.name[0]||'♪')}</div><div class="meta"><b>${esc(s.name)}</b><small>${s.type=='short'?'Short':'Long'} · ${fmt(s.dur)}</small></div><button class="dots" data-m="${esc(s.id)}" aria-label="More">⋮</button></div>`;
+function bindRows(list,ids,isPl){
+  list.querySelectorAll('.row').forEach(r=>{r.onclick=e=>{if(e.target.closest('.dots'))return;const i=ids.indexOf(r.dataset.id);playQ(ids,i)};
+    r.querySelector('.dots').onclick=()=>menu(r.dataset.id,isPl)});syncList()}
+const emptyH=`<div class="empty">No songs yet.<br>Allow your music once and Velo keeps them.<br><label class="pill" for="fAudio" id="allow">Allow music access</label></div>`;
+function render(){
+  nav();const m=$('#main');document.querySelector('.reels')?.remove();document.querySelector('.rtop')?.remove();
+  if(S.tab=='home')home(m);else if(S.tab=='reels')reels(m);else if(S.pl)plView(m);else plList(m)}
+function home(m){
+  const stories=pls.map(p=>`<div class="st ${p.kind}" data-p="${p.id}"><i>${esc(p.name[0])}</i><span>${esc(p.name)}</span></div>`).join('');
+  m.innerHTML=(pls.length?`<div class="stories">${stories}</div>`:'')+`<div class="bar"><h2>All songs</h2><small>${songs.length}</small></div><div id="list">${songs.length?songs.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(rowH).join(''):emptyH}</div>`;
+  m.querySelectorAll('.st').forEach(e=>e.onclick=()=>{S.tab='pl';S.pl=e.dataset.p;render()});
+    const ids=songs.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(s=>s.id);bindRows($('#list'),ids)}
+function plList(m){
+  const L=pls.filter(p=>p.kind==S.kind);
+  m.innerHTML=`<div class="bar"><h2>Playlists</h2><button class="pill" id="newPl">+ New</button></div>
+  <div class="seg"><button data-k="long" class="${S.kind=='long'?'on':''}">Long songs</button><button data-k="short" class="${S.kind=='short'?'on':''}">Short songs</button></div>
+  ${L.length?L.map(p=>`<div class="plc" data-p="${p.id}"><div class="art">${esc(p.name[0])}</div><div class="meta"><b>${esc(p.name)}</b><small>${p.ids.length} songs</small></div></div>`).join(''):`<div class="empty">No ${S.kind}-format playlists yet.</div>`}`;
+  m.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S.kind=b.dataset.k;render()});
+  m.querySelectorAll('.plc').forEach(e=>e.onclick=()=>{S.pl=e.dataset.p;render()});
+  $('#newPl').onclick=()=>sheet(`<h3>New ${S.kind}-format playlist</h3><input id="pn" placeholder="Playlist name" maxlength="40"><button class="opt" id="mk">Create playlist</button>`,()=>{$('#mk').onclick=async()=>{const n=$('#pn').value.trim();if(!n)return;const p={id:'p'+Date.now(),name:n,kind:S.kind,ids:[]};pls.push(p);await put('pl',p);closeSheet();render()}})}
+function plView(m){
+  const p=pls.find(x=>x.id==S.pl);if(!p){S.pl=null;return render()}
+  p.ids=p.ids.filter(id=>song(id));
+  m.innerHTML=`<div class="bar"><button class="ib" id="back">←</button><h2 style="flex:1;margin-left:8px">${esc(p.name)}</h2><button class="ib" id="delPl">🗑</button></div>
+  <div class="bar"><small>${p.kind=='short'?'Short':'Long'} format · ${p.ids.length} songs</small><button class="pill" id="shuf">🔀 Random shuffle</button></div>
+  <div id="list">${p.ids.length?p.ids.map(id=>rowH(song(id))).join(''):'<div class="empty">Empty. Add songs from the ⋮ menu on any song.</div>'}</div>`;
+  $('#back').onclick=()=>{S.pl=null;render()};
+  $('#delPl').onclick=async()=>{if(confirm('Delete this playlist?')){pls=pls.filter(x=>x!=p);await rm('pl',p.id);S.pl=null;render()}};
+  $('#shuf').onclick=()=>shuffleAnim(p.ids,async o=>{p.ids=o;await put('pl',p)},()=>{$('#list').innerHTML=p.ids.map(id=>rowH(song(id))).join('');bindRows($('#list'),p.ids,p)});
+  bindRows($('#list'),p.ids,p)}
+/* shuffle: songs visibly reorder for 2s, then the final order is kept until pressed again */
+function shuffleAnim(ids,save,draw){
+  if(ids.length<2)return;const t0=Date.now(),btn=document.querySelector('#shuf,#rshuf');btn.disabled=true;let cur=ids.slice();
+  const tick=()=>{cur=shuf(cur);ids.splice(0,ids.length,...cur);draw();
+    if(Date.now()-t0<2000)setTimeout(tick,120);else{btn.disabled=false;save(cur);toast('Shuffled — order saved')}};tick()}
+function reels(m){
+  m.innerHTML='';const ids=S.reelOrder.filter(id=>song(id)&&song(id).type=='short');
+  const top=document.createElement('div');top.className='rtop';top.innerHTML='<h2>Reels</h2><button class="pill" id="rshuf">🔀 Random shuffle</button>';document.body.appendChild(top);
+  const box=document.createElement('div');box.className='reels';$('#app').appendChild(box);
+  const draw=()=>{box.innerHTML=ids.length?ids.map(id=>{const s=song(id);return `<div class="reel" data-id="${esc(id)}" style="${s.img?`background-image:url(${url(id,'img')})`:''}">${s.img?'':`<div class="big">${esc(s.name[0])}</div>`}<div class="cap"><b>${esc(s.name)}</b><small>Short · ${fmt(s.dur)}</small></div><button class="rdots" data-m="${esc(id)}">⋮</button></div>`}).join(''):`<div class="reel"><div class="cap"><b>No short songs yet</b><small>Songs up to 90 seconds appear here. Use ⋮ on any song to mark it as short.</small></div></div>`;
+    box.querySelectorAll('.rdots').forEach(b=>b.onclick=()=>menu(b.dataset.m));
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.6)playQ(ids,ids.indexOf(e.target.dataset.id),true)}),{root:box,threshold:.6});
+    box.querySelectorAll('.reel[data-id]').forEach(r=>io.observe(r))};
+  draw();$('#rshuf').onclick=()=>shuffleAnim(ids,async o=>{S.reelOrder=o.slice();await put('meta',S.reelOrder,'reelOrder')},()=>{box.scrollTop=0;draw()})}
+/* ---------- sheets ---------- */
+function sheet(html,after){closeSheet();const d=document.createElement('div');d.className='sheet-bg';d.innerHTML=`<div class="sheet">${html}</div>`;d.onclick=e=>{if(e.target==d)closeSheet()};document.body.appendChild(d);after&&after()}
+const closeSheet=()=>document.querySelector('.sheet-bg')?.remove();
+function menu(id,pl){
+  const s=song(id);if(!s)return;
+  sheet(`<h3>${esc(s.name)}</h3><button class="opt" id="o1">Add to playlist</button><button class="opt" id="o2">${s.img?'Change':'Add'} lyric image</button><button class="opt" id="o3">Move to ${s.type=='short'?'long':'short'} format</button>${pl?'<button class="opt" id="o4">Remove from this playlist</button>':''}<button class="opt" id="o5">Delete from Velo</button>`,()=>{
+    $('#o1').onclick=()=>addTo(s);
+    $('#o2').onclick=()=>{closeSheet();const f=$('#fImg');f.onchange=async()=>{if(!f.files[0])return;s.img=f.files[0];delete urls[s.id+'img'];await put('songs',s);f.value='';toast('Lyric image added');render()};f.click()};
+    $('#o3').onclick=async()=>{s.type=s.type=='short'?'long':'short';if(s.type=='short'){if(!S.reelOrder.includes(s.id))S.reelOrder.push(s.id)}await put('songs',s);await put('meta',S.reelOrder,'reelOrder');pls.forEach(p=>{if(p.kind!=s.type)p.ids=p.ids.filter(x=>x!=s.id)});await Promise.all(pls.map(p=>put('pl',p)));closeSheet();render()};
+    if(pl)$('#o4').onclick=async()=>{pl.ids=pl.ids.filter(x=>x!=s.id);await put('pl',pl);closeSheet();render()};
+    $('#o5').onclick=async()=>{if(!confirm('Remove from Velo? (Your file stays on the phone.)'))return;songs=songs.filter(x=>x!=s);await rm('songs',s.id);pls.forEach(p=>p.ids=p.ids.filter(x=>x!=s.id));await Promise.all(pls.map(p=>put('pl',p)));closeSheet();render()}})}
+function addTo(s){
+  const L=pls.filter(p=>p.kind==s.type);
+  sheet(`<h3>Add to a ${s.type}-format playlist</h3>${L.length?L.map(p=>`<button class="opt" data-p="${p.id}">${esc(p.name)}</button>`).join(''):'<div class="empty">Create a '+s.type+'-format playlist first in the Playlists tab.</div>'}`,()=>{
+    document.querySelectorAll('.sheet .opt').forEach(b=>b.onclick=async()=>{const p=pls.find(x=>x.id==b.dataset.p);if(!p.ids.includes(s.id))p.ids.push(s.id);await put('pl',p);closeSheet();toast('Added to '+p.name)})})}
+/* ---------- boot ---------- */
+(async()=>{await open();songs=await all('songs');pls=await all('pl');S.reelOrder=(await getm('reelOrder'))||[];
+  songs.filter(s=>s.type=='short'&&!S.reelOrder.includes(s.id)).forEach(s=>S.reelOrder.push(s.id));
+  render()})();
+</script></body></html>
